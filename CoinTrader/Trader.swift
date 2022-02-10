@@ -15,6 +15,8 @@ class Trader {
 	var money = 100000.0
 	var currentPrice = 0.0
 	var timestamp = 0
+    
+    var boughtPrice = 0.0
 	
 	private let short = Constants.shorter
 	private let long = Constants.longer
@@ -51,9 +53,7 @@ class Trader {
 					while(self.isRunning){
 						sleep(UInt32(60 * Constants.callInterval))
 						apiGetPrice(time: self.timestamp, limit: 1, completeHandler: self.onSucessGet)
-
 					}
-					 
 				 }
 				print("thread stopped")
 				self.counter += 1
@@ -83,9 +83,7 @@ class Trader {
 	}
 	
 	func onSucessGetTest(_ success: Bool, _ data: Response<Price>){
-		guard data.result.count > 0 else {
-			return
-		}
+		guard data.result.count > 0 else { return }
 		data.result.forEach{
 			self.execute(price:$0)
 		}
@@ -140,7 +138,7 @@ class Trader {
 	}
 	
 	private func sell(price: Double){
-		self.money += price * self.amount
+		self.money = (self.boughtPrice * 2 - price) * self.amount
 		self.amount = 0
 		self.indicatorMaker.resetTouched()
 		print("[sell] money:", self.money, ", amount:", String(self.amount))
@@ -155,8 +153,9 @@ class Trader {
 	}
 	
 	private func buy(price: Double){
-		let amount = Double(String(format: "%.3f", (self.money / price)))!
+        let amount = floor((self.money / price) * 1000) / 1000
 		self.money -= price * amount
+        self.boughtPrice = price
 		self.amount += amount
 		self.indicatorMaker.resetTouched()
 		print("[buy] money:", self.money, ", amount:", String(self.amount))

@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import Alamofire
 
 struct Result : Codable{
 	let open_time : Int
@@ -33,8 +34,19 @@ struct Price : Codable{
 }
 
 func apiGetPrice(time:Int, limit: Int,completeHandler:@escaping (Bool, Response<Price>) -> Void){
-	apiGet(url: "/public/linear/kline?symbol=" + Constants.coinSymbol
-				 + "&interval=" + String(Constants.callInterval)
-				 + "&limit=" + String(limit)
-				 + "&from=" + String(time), completeHandler: completeHandler)
+    let params: Parameters = [
+        "interval": "String(Constants.callInterval)",
+        "limit" :String(limit),
+        "from": String(time)
+    ]
+    AF.request("/public/linear/kline?symbol=", parameters: params).response{ response in
+        guard let response = response.result else { return }
+    }
+}
+
+func apiGetPrice2(time:Int, limit: Int,completeHandler:@escaping (Bool, Response<Price>) -> Void){
+    apiGet(url: "/public/linear/kline?symbol=" + Constants.coinSymbol
+                 + "&interval=" + String(Constants.callInterval)
+                 + "&limit=" + String(limit)
+                 + "&from=" + String(time), completeHandler: completeHandler)
 }
