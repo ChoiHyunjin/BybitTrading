@@ -35,13 +35,20 @@ struct Price : Codable{
 
 func apiGetPrice(time:Int, limit: Int,completeHandler:@escaping (Bool, Response<Price>) -> Void){
     let params: Parameters = [
-        "interval": "String(Constants.callInterval)",
+        "symbol": Constants.coinSymbol,
+        "interval": String(Constants.callInterval),
         "limit" :String(limit),
         "from": String(time)
     ]
-    AF.request("/public/linear/kline?symbol=", parameters: params).response{ response in
-        guard let response = response.result else { return }
-    }
+    AF.request("\(Constants.url)/public/linear/kline", method: .get, parameters: params, encoding: URLEncoding.default, headers: [:])
+        .validate(statusCode: 200..<300)
+        .responseDecodable(of: Response<Price>.self, completionHandler: { response in
+            do{
+                let data = try response.result.get()
+                completeHandler(true, data)
+            }catch{
+            }
+    })
 }
 
 func apiGetPrice2(time:Int, limit: Int,completeHandler:@escaping (Bool, Response<Price>) -> Void){
