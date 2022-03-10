@@ -13,4 +13,5 @@ struct Constants{
 	static let coinSymbol = "BTCUSDT"
 	static let longer = 20
 	static let shorter = 6
+    static let url = "https://api-testnet.bybit.com"
 }
