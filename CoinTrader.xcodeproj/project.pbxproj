@@ -10,6 +10,7 @@
 		30F90D1A610F83164E8941DC /* Pods_CoinTraderTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 201F1CFC33A7CC83156C4E2D /* Pods_CoinTraderTests.framework */; };
 		B067AA7C6FB5B08D08D031CF /* Pods_CoinTrader_CoinTraderUITests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CDC8B019F32539634D7166B2 /* Pods_CoinTrader_CoinTraderUITests.framework */; };
 		CD5CC40A8F5E146AC10BC693 /* Pods_CoinTrader.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 359BEB463C2836B6326F3DE8 /* Pods_CoinTrader.framework */; };
+		CF2247AE27B54FCB00629536 /* TraderTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF2247AD27B54FCB00629536 /* TraderTest.swift */; };
 		CF3AFC0427AE6F28006296CD /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF3AFC0327AE6F28006296CD /* AppDelegate.swift */; };
 		CF3AFC0627AE6F28006296CD /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF3AFC0527AE6F28006296CD /* SceneDelegate.swift */; };
 		CF3AFC0827AE6F28006296CD /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF3AFC0727AE6F28006296CD /* ViewController.swift */; };
@@ -54,6 +55,7 @@
 		833439EEAD6E1482CD3FB25D /* Pods-CoinTraderTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-CoinTraderTests.release.xcconfig"; path = "Target Support Files/Pods-CoinTraderTests/Pods-CoinTraderTests.release.xcconfig"; sourceTree = "<group>"; };
 		B17A055D70DC1CC697879368 /* Pods-CoinTrader.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-CoinTrader.release.xcconfig"; path = "Target Support Files/Pods-CoinTrader/Pods-CoinTrader.release.xcconfig"; sourceTree = "<group>"; };
 		CDC8B019F32539634D7166B2 /* Pods_CoinTrader_CoinTraderUITests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_CoinTrader_CoinTraderUITests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		CF2247AD27B54FCB00629536 /* TraderTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TraderTest.swift; sourceTree = "<group>"; };
 		CF3AFC0027AE6F28006296CD /* CoinTrader.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = CoinTrader.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		CF3AFC0327AE6F28006296CD /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		CF3AFC0527AE6F28006296CD /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
@@ -115,7 +117,6 @@
 				39AB7B2118A47925D7ECA5D1 /* Pods-CoinTraderTests.debug.xcconfig */,
 				833439EEAD6E1482CD3FB25D /* Pods-CoinTraderTests.release.xcconfig */,
 			);
-			name = Pods;
 			path = Pods;
 			sourceTree = "<group>";
 		};
@@ -173,6 +174,7 @@
 			children = (
 				CF3AFC1A27AE6F2F006296CD /* CoinTraderTests.swift */,
 				CF99C3ED27AFBBF6004ED36B /* IndicatorMakerTest.swift */,
+				CF2247AD27B54FCB00629536 /* TraderTest.swift */,
 			);
 			path = CoinTraderTests;
 			sourceTree = "<group>";
@@ -462,6 +464,7 @@
 			files = (
 				CF99C3EE27AFBBF6004ED36B /* IndicatorMakerTest.swift in Sources */,
 				CF3AFC1B27AE6F2F006296CD /* CoinTraderTests.swift in Sources */,
+				CF2247AE27B54FCB00629536 /* TraderTest.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

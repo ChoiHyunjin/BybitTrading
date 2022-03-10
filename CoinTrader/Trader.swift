@@ -34,9 +34,11 @@ class Trader {
 		self.isRunning = true
 		
 //		timestamp = Int(Date().timeIntervalSince1970) - (self.test ? 60 * 60 * 24 * 365 * 2 : Constants.callInterval * 60 * long)
-		timestamp = 60 * 60 * 24 * ( 365 * 51 + 10 + 365 - 31)
+		let startDate = DateFormatter().date(from: "2021-02-01")
+		guard let timestamp = startDate?.timeIntervalSince1970 else {return}
+//		timestamp = 60 * 60 * 24 * ( 365 * 51 + 10 + 365 + 32)
 		
-		apiGetPrice(time: self.timestamp, limit: 20, completeHandler: {success, data in
+		apiGetPrice(time: Int(timestamp), limit: 20, completeHandler: {success, data in
 			guard self.isRunning else { return }
 			self.indicatorMaker.setPrices(data.result.map{
 				$0.close
@@ -137,36 +139,18 @@ class Trader {
 		}
 	}
 	
-	private func sell(price: Double){
+	 func sell(price: Double){
 		self.money = (self.boughtPrice * 2 - price) * self.amount
 		self.amount = 0
 		self.indicatorMaker.resetTouched()
-		print("[sell] money:", self.money, ", amount:", String(self.amount))
-		print(price, ", bw:", self.indicatorMaker.getBW(),
-					", ma6:", self.indicatorMaker.movingAverage(during: 6),
-					", ma20:", self.indicatorMaker.movingAverage(during: 20),
-					", touchedTop:", self.indicatorMaker.touchedTop,
-					", touchedBottom:", self.indicatorMaker.touchedBottom,
-					", upper:", self.indicatorMaker.upper(),
-					", lower:", self.indicatorMaker.lower(),
-					", subs:", self.indicatorMaker.upper()-self.indicatorMaker.lower())
 	}
 	
-	private func buy(price: Double){
-        let amount = floor((self.money / price) * 1000) / 1000
+	 func buy(price: Double){
+		let amount = floor((self.money / price) * 1000) / 1000
 		self.money -= price * amount
-        self.boughtPrice = price
+		self.boughtPrice = price
 		self.amount += amount
 		self.indicatorMaker.resetTouched()
-		print("[buy] money:", self.money, ", amount:", String(self.amount))
-		print(price, ", bw:", self.indicatorMaker.getBW(),
-					", ma6:", self.indicatorMaker.movingAverage(during: 6),
-					", ma20:", self.indicatorMaker.movingAverage(during: 20),
-					", touchedTop:", self.indicatorMaker.touchedTop,
-					", touchedBottom:", self.indicatorMaker.touchedBottom,
-					", upper:", self.indicatorMaker.upper(),
-					", lower:", self.indicatorMaker.lower(),
-					", subs:", self.indicatorMaker.upper()-self.indicatorMaker.lower())
 	}
 	
 	deinit{
