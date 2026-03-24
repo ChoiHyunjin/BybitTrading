@@ -1,38 +1,60 @@
-import React, {useState} from 'react';
+import React, { useState } from 'react';
 import {
-  View,
+  ActivityIndicator,
+  SafeAreaView,
+  ScrollView,
+  StyleSheet,
   Text,
   TextInput,
   TouchableOpacity,
-  ScrollView,
-  ActivityIndicator,
-  StyleSheet,
-  SafeAreaView,
+  View,
 } from 'react-native';
-import {useBacktest} from '../hooks/useBacktest';
-import {ResultSummary} from '../components/ResultSummary';
-import {TradeList} from '../components/TradeList';
-import {Picker} from '../components/Picker';
-import {BollingerStrategy} from '../strategies/BollingerStrategy';
-import {colors, spacing, borderRadius} from '../theme/tokens';
+import { Picker } from '../components/Picker';
+import { ResultSummary } from '../components/ResultSummary';
+import { TradeList } from '../components/TradeList';
+import { useBacktest } from '../hooks/useBacktest';
+import { BollingerStrategy } from '../strategies/BollingerStrategy';
+import { SmaCrossoverStrategy } from '../strategies/SmaCrossoverStrategy';
+import { RsiStrategy } from '../strategies/RsiStrategy';
+import { TradingStrategy } from '../strategies/TradingStrategy';
+import { borderRadius, colors, spacing } from '../theme/tokens';
 
 const SYMBOL_OPTIONS = [
-  {label: 'BTC/USDT', value: 'BTCUSDT'},
-  {label: 'ETH/USDT', value: 'ETHUSDT'},
-  {label: 'SOL/USDT', value: 'SOLUSDT'},
-  {label: 'XRP/USDT', value: 'XRPUSDT'},
-  {label: 'DOGE/USDT', value: 'DOGEUSDT'},
+  { label: 'BTC/USDT', value: 'BTCUSDT' },
+  { label: 'ETH/USDT', value: 'ETHUSDT' },
+  { label: 'SOL/USDT', value: 'SOLUSDT' },
+  { label: 'XRP/USDT', value: 'XRPUSDT' },
+  { label: 'DOGE/USDT', value: 'DOGEUSDT' },
 ];
 
+const STRATEGY_OPTIONS = [
+  { label: 'SMA Crossover', value: 'sma' },
+  { label: 'RSI (30/70)', value: 'rsi' },
+  { label: 'Bollinger Band', value: 'bollinger' },
+];
+
+function createStrategy(key: string): TradingStrategy {
+  switch (key) {
+    case 'sma':
+      return new SmaCrossoverStrategy();
+    case 'rsi':
+      return new RsiStrategy();
+    case 'bollinger':
+      return new BollingerStrategy();
+    default:
+      return new SmaCrossoverStrategy();
+  }
+}
+
 const INTERVAL_OPTIONS = [
-  {label: '1분', value: '1'},
-  {label: '3분', value: '3'},
-  {label: '5분', value: '5'},
-  {label: '15분', value: '15'},
-  {label: '30분', value: '30'},
-  {label: '1시간', value: '60'},
-  {label: '4시간', value: '240'},
-  {label: '1일', value: 'D'},
+  { label: '1분', value: '1' },
+  { label: '3분', value: '3' },
+  { label: '5분', value: '5' },
+  { label: '15분', value: '15' },
+  { label: '30분', value: '30' },
+  { label: '1시간', value: '60' },
+  { label: '4시간', value: '240' },
+  { label: '1일', value: 'D' },
 ];
 
 export function BacktestScreen() {
@@ -41,8 +63,9 @@ export function BacktestScreen() {
   const [startDate, setStartDate] = useState('2024-01-01');
   const [endDate, setEndDate] = useState('2024-12-31');
   const [initialMoney, setInitialMoney] = useState('10000');
+  const [strategyKey, setStrategyKey] = useState('sma');
 
-  const {state, runBacktest} = useBacktest();
+  const { state, runBacktest } = useBacktest();
 
   const handleRun = () => {
     const start = new Date(startDate).getTime();
@@ -55,7 +78,7 @@ export function BacktestScreen() {
       startTime: start,
       endTime: end,
       initialMoney: money,
-      strategy: new BollingerStrategy(),
+      strategy: createStrategy(strategyKey),
     });
   };
 
@@ -63,12 +86,15 @@ export function BacktestScreen() {
 
   return (
     <SafeAreaView style={styles.safeArea}>
-      <ScrollView style={styles.container} contentContainerStyle={styles.content}>
+      <ScrollView
+        style={styles.container}
+        contentContainerStyle={styles.content}
+      >
         <Text style={styles.title}>백테스팅</Text>
 
         <View style={styles.configSection}>
           <View style={styles.fieldRow}>
-            <View style={[styles.field, {flex: 1}]}>
+            <View style={styles.flexField}>
               <Text style={styles.fieldLabel}>심볼</Text>
               <Picker
                 options={SYMBOL_OPTIONS}
@@ -76,7 +102,7 @@ export function BacktestScreen() {
                 onSelect={setSymbol}
               />
             </View>
-            <View style={[styles.field, {flex: 1}]}>
+            <View style={styles.flexField}>
               <Text style={styles.fieldLabel}>인터벌</Text>
               <Picker
                 options={INTERVAL_OPTIONS}
@@ -87,7 +113,7 @@ export function BacktestScreen() {
           </View>
 
           <View style={styles.fieldRow}>
-            <View style={[styles.field, {flex: 1}]}>
+            <View style={styles.flexField}>
               <Text style={styles.fieldLabel}>시작일</Text>
               <TextInput
                 style={styles.input}
@@ -97,7 +123,7 @@ export function BacktestScreen() {
                 placeholderTextColor={colors.textSecondary}
               />
             </View>
-            <View style={[styles.field, {flex: 1}]}>
+            <View style={styles.flexField}>
               <Text style={styles.fieldLabel}>종료일</Text>
               <TextInput
                 style={styles.input}
@@ -123,9 +149,9 @@ export function BacktestScreen() {
           <View style={styles.field}>
             <Text style={styles.fieldLabel}>전략</Text>
             <Picker
-              options={[{label: 'Bollinger Band', value: 'bollinger'}]}
-              selectedValue="bollinger"
-              onSelect={() => {}}
+              options={STRATEGY_OPTIONS}
+              selectedValue={strategyKey}
+              onSelect={setStrategyKey}
             />
           </View>
         </View>
@@ -133,7 +159,8 @@ export function BacktestScreen() {
         <TouchableOpacity
           style={[styles.runButton, isLoading && styles.runButtonDisabled]}
           onPress={handleRun}
-          disabled={isLoading}>
+          disabled={isLoading}
+        >
           {isLoading ? (
             <View style={styles.loadingRow}>
               <ActivityIndicator color="#FFFFFF" size="small" />
@@ -185,6 +212,10 @@ const styles = StyleSheet.create({
   configSection: {
     gap: spacing.md,
     marginBottom: spacing.xl,
+  },
+  flexField: {
+    flex: 1,
+    gap: spacing.xs,
   },
   field: {
     gap: spacing.xs,
