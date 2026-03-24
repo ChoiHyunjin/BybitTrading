@@ -12,12 +12,32 @@ import {
 import {useBacktest} from '../hooks/useBacktest';
 import {ResultSummary} from '../components/ResultSummary';
 import {TradeList} from '../components/TradeList';
+import {Picker} from '../components/Picker';
 import {BollingerStrategy} from '../strategies/BollingerStrategy';
 import {colors, spacing, borderRadius} from '../theme/tokens';
 
+const SYMBOL_OPTIONS = [
+  {label: 'BTC/USDT', value: 'BTCUSDT'},
+  {label: 'ETH/USDT', value: 'ETHUSDT'},
+  {label: 'SOL/USDT', value: 'SOLUSDT'},
+  {label: 'XRP/USDT', value: 'XRPUSDT'},
+  {label: 'DOGE/USDT', value: 'DOGEUSDT'},
+];
+
+const INTERVAL_OPTIONS = [
+  {label: '1분', value: '1'},
+  {label: '3분', value: '3'},
+  {label: '5분', value: '5'},
+  {label: '15분', value: '15'},
+  {label: '30분', value: '30'},
+  {label: '1시간', value: '60'},
+  {label: '4시간', value: '240'},
+  {label: '1일', value: 'D'},
+];
+
 export function BacktestScreen() {
-  const [symbol] = useState('BTCUSDT');
-  const [interval] = useState('3');
+  const [symbol, setSymbol] = useState('BTCUSDT');
+  const [interval, setInterval] = useState('3');
   const [startDate, setStartDate] = useState('2024-01-01');
   const [endDate, setEndDate] = useState('2024-12-31');
   const [initialMoney, setInitialMoney] = useState('10000');
@@ -47,10 +67,22 @@ export function BacktestScreen() {
         <Text style={styles.title}>백테스팅</Text>
 
         <View style={styles.configSection}>
-          <View style={styles.field}>
-            <Text style={styles.fieldLabel}>심볼</Text>
-            <View style={styles.inputDisabled}>
-              <Text style={styles.inputText}>{symbol}</Text>
+          <View style={styles.fieldRow}>
+            <View style={[styles.field, {flex: 1}]}>
+              <Text style={styles.fieldLabel}>심볼</Text>
+              <Picker
+                options={SYMBOL_OPTIONS}
+                selectedValue={symbol}
+                onSelect={setSymbol}
+              />
+            </View>
+            <View style={[styles.field, {flex: 1}]}>
+              <Text style={styles.fieldLabel}>인터벌</Text>
+              <Picker
+                options={INTERVAL_OPTIONS}
+                selectedValue={interval}
+                onSelect={setInterval}
+              />
             </View>
           </View>
 
@@ -90,9 +122,11 @@ export function BacktestScreen() {
 
           <View style={styles.field}>
             <Text style={styles.fieldLabel}>전략</Text>
-            <View style={styles.inputDisabled}>
-              <Text style={styles.inputText}>Bollinger Band Strategy</Text>
-            </View>
+            <Picker
+              options={[{label: 'Bollinger Band', value: 'bollinger'}]}
+              selectedValue="bollinger"
+              onSelect={() => {}}
+            />
           </View>
         </View>
 
