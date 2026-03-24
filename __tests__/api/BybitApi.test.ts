@@ -98,15 +98,15 @@ describe('BybitApi', () => {
   });
 
   describe('fetchAllKlines', () => {
-    it('should paginate through all data', async () => {
-      // First page
+    it('should paginate forward using start only (no end)', async () => {
+      // First page: 2 candles
       mockFetch.mockResolvedValueOnce(
         makeMockResponse([
           ['2000', '100', '110', '90', '105', '50', '5000'],
           ['1000', '100', '110', '90', '100', '50', '5000'],
         ]),
       );
-      // Second page
+      // Second page: 1 candle
       mockFetch.mockResolvedValueOnce(
         makeMockResponse([
           ['3000', '100', '110', '90', '108', '50', '5000'],
@@ -126,6 +126,33 @@ describe('BybitApi', () => {
       expect(prices[0].openTime).toBe(1000);
       expect(prices[2].openTime).toBe(3000);
       expect(mockFetch).toHaveBeenCalledTimes(3);
+
+      // Verify no 'end' param in fetch calls (forward pagination)
+      const firstCallUrl = mockFetch.mock.calls[0][0] as string;
+      expect(firstCallUrl).toContain('start=1000');
+      expect(firstCallUrl).not.toContain('end=');
+    });
+
+    it('should filter out candles beyond end time', async () => {
+      mockFetch.mockResolvedValueOnce(
+        makeMockResponse([
+          ['5000', '100', '110', '90', '105', '50', '5000'],
+          ['3000', '100', '110', '90', '102', '50', '5000'],
+          ['1000', '100', '110', '90', '100', '50', '5000'],
+        ]),
+      );
+
+      const prices = await BybitApi.fetchAllKlines({
+        symbol: 'BTCUSDT',
+        interval: '3',
+        start: 1000,
+        end: 4000,
+      });
+
+      // openTime 5000 should be filtered out (>= end 4000)
+      expect(prices).toHaveLength(2);
+      expect(prices[0].openTime).toBe(1000);
+      expect(prices[1].openTime).toBe(3000);
     });
 
     it('should stop on empty response', async () => {

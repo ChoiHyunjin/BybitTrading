@@ -79,11 +79,13 @@ export class BybitApi {
     let currentStart = params.start;
 
     while (currentStart < params.end) {
+      // Only use `start` + `limit` (no `end`) to paginate forward correctly.
+      // Bybit V5 with both start+end returns the most recent N within range,
+      // which breaks forward pagination.
       const prices = await BybitApi.fetchKlines({
         symbol: params.symbol,
         interval: params.interval,
         start: currentStart,
-        end: params.end,
         limit,
       });
 
@@ -91,7 +93,14 @@ export class BybitApi {
         break;
       }
 
-      allPrices.push(...prices);
+      // Filter out any candles beyond our desired end time
+      const filtered = prices.filter(p => p.openTime < params.end);
+      allPrices.push(...filtered);
+
+      if (filtered.length < prices.length) {
+        // We've passed the end time, stop
+        break;
+      }
 
       // Move start to after the last received candle
       const lastTime = prices[prices.length - 1].openTime;
