@@ -5,6 +5,7 @@ import {Signal, TradingStrategy} from './TradingStrategy';
 
 export class BollingerStrategy implements TradingStrategy {
   name = 'Bollinger Band Strategy';
+  warmupPeriod: number;
   private indicatorMaker: IndicatorMaker;
   private readonly short: number;
   private readonly long: number;
@@ -18,6 +19,7 @@ export class BollingerStrategy implements TradingStrategy {
     this.indicatorMaker = new IndicatorMaker(n, k);
     this.short = short;
     this.long = long;
+    this.warmupPeriod = n;
   }
 
   init(prices: number[]): void {
@@ -26,16 +28,15 @@ export class BollingerStrategy implements TradingStrategy {
 
   onPrice(price: Price, hasPosition: boolean): Signal {
     const closePrice = price.close;
-    let signal: Signal;
+
+    // P0 fix: push price BEFORE evaluating so indicators reflect current candle
+    this.indicatorMaker.pushPrice(closePrice);
 
     if (hasPosition) {
-      signal = this.evaluateSell(closePrice);
+      return this.evaluateSell(closePrice);
     } else {
-      signal = this.evaluateBuy(closePrice);
+      return this.evaluateBuy(closePrice);
     }
-
-    this.indicatorMaker.pushPrice(closePrice);
-    return signal;
   }
 
   reset(): void {

@@ -18,6 +18,7 @@ function makePrice(close: number, openTime: number = 0): Price {
 
 class AlwaysBuyThenSellStrategy implements TradingStrategy {
   name = 'AlwaysBuyThenSell';
+  warmupPeriod = 20;
   private count = 0;
 
   init(_prices: number[]): void {
@@ -50,7 +51,7 @@ describe('BacktestEngine', () => {
   it('should return empty result when data is too small', () => {
     const data = Array.from({length: 10}, (_, i) => makePrice(100 + i));
     const result = engine.run(
-      {strategy: new AlwaysBuyThenSellStrategy(), initialMoney: 10000},
+      {strategy: new AlwaysBuyThenSellStrategy(), initialMoney: 10000, feeRate: 0, slippageRate: 0},
       data,
     );
     expect(result.totalTrades).toBe(0);
@@ -75,7 +76,7 @@ describe('BacktestEngine', () => {
 
     const data = [...initPrices, ...tradingPrices];
     const result = engine.run(
-      {strategy: new AlwaysBuyThenSellStrategy(), initialMoney: 10000},
+      {strategy: new AlwaysBuyThenSellStrategy(), initialMoney: 10000, feeRate: 0, slippageRate: 0},
       data,
     );
 
@@ -94,7 +95,7 @@ describe('BacktestEngine', () => {
 
     const data = [...initPrices, ...tradingPrices];
     const result = engine.run(
-      {strategy: new AlwaysBuyThenSellStrategy(), initialMoney: 10000},
+      {strategy: new AlwaysBuyThenSellStrategy(), initialMoney: 10000, feeRate: 0, slippageRate: 0},
       data,
     );
 
@@ -117,7 +118,7 @@ describe('BacktestEngine', () => {
     // Strategy: buy on count 1 (odd, no position), then count 2 (even, has position) → SELL
     // Actually count=1 → BUY, count=2 → SELL
     const result = engine.run(
-      {strategy: new AlwaysBuyThenSellStrategy(), initialMoney: 10000},
+      {strategy: new AlwaysBuyThenSellStrategy(), initialMoney: 10000, feeRate: 0, slippageRate: 0},
       data,
     );
 
@@ -138,7 +139,7 @@ describe('BacktestEngine', () => {
 
     const data = [...initPrices, ...tradingPrices];
     const result = engine.run(
-      {strategy: new AlwaysBuyThenSellStrategy(), initialMoney: 10000},
+      {strategy: new AlwaysBuyThenSellStrategy(), initialMoney: 10000, feeRate: 0, slippageRate: 0},
       data,
     );
 

@@ -3,6 +3,7 @@ import {Signal, TradingStrategy} from './TradingStrategy';
 
 export class RsiStrategy implements TradingStrategy {
   name = 'RSI Strategy';
+  warmupPeriod: number;
   private readonly period: number;
   private readonly oversold: number;
   private readonly overbought: number;
@@ -14,6 +15,7 @@ export class RsiStrategy implements TradingStrategy {
     this.period = period;
     this.oversold = oversold;
     this.overbought = overbought;
+    this.warmupPeriod = period + 1;
   }
 
   init(prices: number[]): void {

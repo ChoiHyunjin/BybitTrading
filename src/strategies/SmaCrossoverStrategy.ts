@@ -4,6 +4,7 @@ import {Signal, TradingStrategy} from './TradingStrategy';
 
 export class SmaCrossoverStrategy implements TradingStrategy {
   name = 'SMA Crossover Strategy';
+  warmupPeriod: number;
   private pricesManager: PricesManager;
   private readonly shortPeriod: number;
   private readonly longPeriod: number;
@@ -14,6 +15,7 @@ export class SmaCrossoverStrategy implements TradingStrategy {
     this.shortPeriod = shortPeriod;
     this.longPeriod = longPeriod;
     this.pricesManager = new PricesManager(longPeriod);
+    this.warmupPeriod = longPeriod;
   }
 
   init(prices: number[]): void {
