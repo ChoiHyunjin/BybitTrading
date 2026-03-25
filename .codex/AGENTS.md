@@ -11,6 +11,7 @@ This project uses local Codex skills stored under `.codex/skills/`. These are pr
 - role-trading-frontend-developer: Trading frontend role for numeric formatting, stale-state handling, and order-action safety. (file: /Users/tophy/Documents/workspaces/bybittrading/.codex/skills/role-trading-frontend-developer/SKILL.md)
 - role-trading-backend-developer: Trading backend role for decimal calculations, idempotency, persist-before-submit, and exchange safety. (file: /Users/tophy/Documents/workspaces/bybittrading/.codex/skills/role-trading-backend-developer/SKILL.md)
 - role-trading-code-reviewer: Trading code review role with float-for-money as critical and strong checks for order safety and failure handling. (file: /Users/tophy/Documents/workspaces/bybittrading/.codex/skills/role-trading-code-reviewer/SKILL.md)
+- role-trading-quant-strategist: Quantitative strategist role for chart analysis, mathematical modeling, indicator design, and strategy optimization. (file: .codex/agents/trading/quant-strategist.spec.md)
 
 ### Project context
 - This is a Bybit-based iOS trading project built with UIKit.
