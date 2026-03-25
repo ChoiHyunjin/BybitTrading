@@ -2,6 +2,18 @@ import {KlineRepository} from '../../src/data/KlineRepository';
 import {BybitApi} from '../../src/api/BybitApi';
 import {Price} from '../../src/models/Price';
 
+// Mock MMKV
+jest.mock('../../src/data/storage', () => {
+  const store = new Map<string, string>();
+  return {
+    storage: {
+      getString: (key: string) => store.get(key) ?? null,
+      set: (key: string, value: string) => store.set(key, value),
+      clearAll: () => store.clear(),
+    },
+  };
+});
+
 jest.mock('../../src/api/BybitApi');
 const mockFetchAllKlines = BybitApi.fetchAllKlines as jest.MockedFunction<typeof BybitApi.fetchAllKlines>;
 

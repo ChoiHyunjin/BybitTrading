@@ -15,6 +15,7 @@ export interface KlineRangeParams {
   interval: string;
   start: number;
   end: number;
+  onProgress?: (loaded: number, estimatedTotal: number) => void;
 }
 
 interface BybitKlineResponse {
@@ -39,6 +40,26 @@ function parseKlineRow(row: string[], symbol: string, interval: string): Price {
     volume: parseFloat(row[5]),
     turnover: parseFloat(row[6]),
   };
+}
+
+function estimateTotalCandles(start: number, end: number, interval: string): number {
+  const intervalMs: Record<string, number> = {
+    '1': 60_000,
+    '3': 180_000,
+    '5': 300_000,
+    '15': 900_000,
+    '30': 1_800_000,
+    '60': 3_600_000,
+    '120': 7_200_000,
+    '240': 14_400_000,
+    '360': 21_600_000,
+    '720': 43_200_000,
+    D: 86_400_000,
+    W: 604_800_000,
+    M: 2_592_000_000,
+  };
+  const ms = intervalMs[interval] || 180_000;
+  return Math.ceil((end - start) / ms);
 }
 
 export class BybitApi {
@@ -77,11 +98,9 @@ export class BybitApi {
     const allPrices: Price[] = [];
     const limit = 200;
     let currentStart = params.start;
+    const estimated = estimateTotalCandles(params.start, params.end, params.interval);
 
     while (currentStart < params.end) {
-      // Only use `start` + `limit` (no `end`) to paginate forward correctly.
-      // Bybit V5 with both start+end returns the most recent N within range,
-      // which breaks forward pagination.
       const prices = await BybitApi.fetchKlines({
         symbol: params.symbol,
         interval: params.interval,
@@ -93,19 +112,18 @@ export class BybitApi {
         break;
       }
 
-      // Filter out any candles beyond our desired end time
       const filtered = prices.filter(p => p.openTime < params.end);
       allPrices.push(...filtered);
 
+      params.onProgress?.(allPrices.length, estimated);
+
       if (filtered.length < prices.length) {
-        // We've passed the end time, stop
         break;
       }
 
-      // Move start to after the last received candle
       const lastTime = prices[prices.length - 1].openTime;
       if (lastTime <= currentStart) {
-        break; // Prevent infinite loop
+        break;
       }
       currentStart = lastTime + 1;
     }

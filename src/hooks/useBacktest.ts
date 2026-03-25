@@ -29,7 +29,7 @@ export function useBacktest() {
         params.interval,
         params.startTime,
         params.endTime,
-        message => setState({status: 'loading', message}),
+        progress => setState({status: 'loading', message: progress.message}),
       );
 
       if (prices.length === 0) {
@@ -37,32 +37,22 @@ export function useBacktest() {
         return;
       }
 
-      const stats = KlineRepository.getCacheStats();
-      setState({
-        status: 'loading',
-        message: `전략 실행 중... (캐시: ${stats.totalCandles.toLocaleString()}개 캔들)`,
-      });
+      setState({status: 'loading', message: `전략 실행 중... (${prices.length.toLocaleString()}개 캔들)`});
 
       const engine = new BacktestEngine();
       const result = engine.run(
-        {
-          strategy: params.strategy,
-          initialMoney: params.initialMoney,
-        },
+        {strategy: params.strategy, initialMoney: params.initialMoney},
         prices,
       );
 
       setState({status: 'success', result});
     } catch (err) {
-      const message =
-        err instanceof Error ? err.message : '알 수 없는 오류가 발생했습니다.';
+      const message = err instanceof Error ? err.message : '알 수 없는 오류가 발생했습니다.';
       setState({status: 'error', error: message});
     }
   }, []);
 
-  const reset = useCallback(() => {
-    setState({status: 'idle'});
-  }, []);
+  const reset = useCallback(() => setState({status: 'idle'}), []);
 
   return {state, runBacktest, reset};
 }

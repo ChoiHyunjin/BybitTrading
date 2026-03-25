@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, {useState} from 'react';
 import {
   ActivityIndicator,
   SafeAreaView,
@@ -9,34 +9,36 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import { Picker } from '../components/Picker';
-import { ResultSummary } from '../components/ResultSummary';
-import { TradeList } from '../components/TradeList';
-import { useBacktest } from '../hooks/useBacktest';
-import { BollingerStrategy } from '../strategies/BollingerStrategy';
-import { SmaCrossoverStrategy } from '../strategies/SmaCrossoverStrategy';
-import { RsiStrategy } from '../strategies/RsiStrategy';
-import { MacdVolumeStrategy } from '../strategies/MacdVolumeStrategy';
-import { AtrChannelStrategy } from '../strategies/AtrChannelStrategy';
-import { MultiFactorStrategy } from '../strategies/MultiFactorStrategy';
-import { TradingStrategy } from '../strategies/TradingStrategy';
-import { borderRadius, colors, spacing } from '../theme/tokens';
+import {Picker} from '../components/Picker';
+import {ProgressBar} from '../components/ProgressBar';
+import {ResultSummary} from '../components/ResultSummary';
+import {TradeList} from '../components/TradeList';
+import {useBacktest} from '../hooks/useBacktest';
+import {usePrefetch} from '../hooks/usePrefetch';
+import {BollingerStrategy} from '../strategies/BollingerStrategy';
+import {SmaCrossoverStrategy} from '../strategies/SmaCrossoverStrategy';
+import {RsiStrategy} from '../strategies/RsiStrategy';
+import {MacdVolumeStrategy} from '../strategies/MacdVolumeStrategy';
+import {AtrChannelStrategy} from '../strategies/AtrChannelStrategy';
+import {MultiFactorStrategy} from '../strategies/MultiFactorStrategy';
+import {TradingStrategy} from '../strategies/TradingStrategy';
+import {borderRadius, colors, spacing} from '../theme/tokens';
 
 const SYMBOL_OPTIONS = [
-  { label: 'BTC/USDT', value: 'BTCUSDT' },
-  { label: 'ETH/USDT', value: 'ETHUSDT' },
-  { label: 'SOL/USDT', value: 'SOLUSDT' },
-  { label: 'XRP/USDT', value: 'XRPUSDT' },
-  { label: 'DOGE/USDT', value: 'DOGEUSDT' },
+  {label: 'BTC/USDT', value: 'BTCUSDT'},
+  {label: 'ETH/USDT', value: 'ETHUSDT'},
+  {label: 'SOL/USDT', value: 'SOLUSDT'},
+  {label: 'XRP/USDT', value: 'XRPUSDT'},
+  {label: 'DOGE/USDT', value: 'DOGEUSDT'},
 ];
 
 const STRATEGY_OPTIONS = [
-  { label: 'Multi-Factor', value: 'multi' },
-  { label: 'MACD + Volume', value: 'macd' },
-  { label: 'ATR Channel', value: 'atr' },
-  { label: 'SMA Crossover', value: 'sma' },
-  { label: 'RSI (30/70)', value: 'rsi' },
-  { label: 'Bollinger Band', value: 'bollinger' },
+  {label: 'Multi-Factor', value: 'multi'},
+  {label: 'MACD + Volume', value: 'macd'},
+  {label: 'ATR Channel', value: 'atr'},
+  {label: 'SMA Crossover', value: 'sma'},
+  {label: 'RSI (30/70)', value: 'rsi'},
+  {label: 'Bollinger Band', value: 'bollinger'},
 ];
 
 function createStrategy(key: string): TradingStrategy {
@@ -59,14 +61,14 @@ function createStrategy(key: string): TradingStrategy {
 }
 
 const INTERVAL_OPTIONS = [
-  { label: '1분', value: '1' },
-  { label: '3분', value: '3' },
-  { label: '5분', value: '5' },
-  { label: '15분', value: '15' },
-  { label: '30분', value: '30' },
-  { label: '1시간', value: '60' },
-  { label: '4시간', value: '240' },
-  { label: '1일', value: 'D' },
+  {label: '1분', value: '1'},
+  {label: '3분', value: '3'},
+  {label: '5분', value: '5'},
+  {label: '15분', value: '15'},
+  {label: '30분', value: '30'},
+  {label: '1시간', value: '60'},
+  {label: '4시간', value: '240'},
+  {label: '1일', value: 'D'},
 ];
 
 export function BacktestScreen() {
@@ -77,50 +79,49 @@ export function BacktestScreen() {
   const [initialMoney, setInitialMoney] = useState('10000');
   const [strategyKey, setStrategyKey] = useState('multi');
 
-  const { state, runBacktest } = useBacktest();
+  const {state: backtestState, runBacktest} = useBacktest();
+  const {state: prefetchState, prefetch} = usePrefetch();
+
+  const getTimeParams = () => ({
+    symbol,
+    interval,
+    startTime: new Date(startDate).getTime(),
+    endTime: new Date(endDate).getTime(),
+  });
+
+  const handlePrefetch = () => {
+    prefetch(getTimeParams());
+  };
 
   const handleRun = () => {
-    const start = new Date(startDate).getTime();
-    const end = new Date(endDate).getTime();
+    const params = getTimeParams();
     const money = parseFloat(initialMoney) || 10000;
-
     runBacktest({
-      symbol,
-      interval,
-      startTime: start,
-      endTime: end,
+      ...params,
       initialMoney: money,
       strategy: createStrategy(strategyKey),
     });
   };
 
-  const isLoading = state.status === 'loading';
+  const isPrefetching = prefetchState.status === 'loading';
+  const isRunning = backtestState.status === 'loading';
+  const isBusy = isPrefetching || isRunning;
+  const dataReady = prefetchState.status === 'done';
 
   return (
     <SafeAreaView style={styles.safeArea}>
-      <ScrollView
-        style={styles.container}
-        contentContainerStyle={styles.content}
-      >
+      <ScrollView style={styles.container} contentContainerStyle={styles.content}>
         <Text style={styles.title}>백테스팅</Text>
 
         <View style={styles.configSection}>
           <View style={styles.fieldRow}>
             <View style={styles.flexField}>
               <Text style={styles.fieldLabel}>심볼</Text>
-              <Picker
-                options={SYMBOL_OPTIONS}
-                selectedValue={symbol}
-                onSelect={setSymbol}
-              />
+              <Picker options={SYMBOL_OPTIONS} selectedValue={symbol} onSelect={setSymbol} />
             </View>
             <View style={styles.flexField}>
               <Text style={styles.fieldLabel}>인터벌</Text>
-              <Picker
-                options={INTERVAL_OPTIONS}
-                selectedValue={interval}
-                onSelect={setInterval}
-              />
+              <Picker options={INTERVAL_OPTIONS} selectedValue={interval} onSelect={setInterval} />
             </View>
           </View>
 
@@ -160,41 +161,78 @@ export function BacktestScreen() {
 
           <View style={styles.field}>
             <Text style={styles.fieldLabel}>전략</Text>
-            <Picker
-              options={STRATEGY_OPTIONS}
-              selectedValue={strategyKey}
-              onSelect={setStrategyKey}
-            />
+            <Picker options={STRATEGY_OPTIONS} selectedValue={strategyKey} onSelect={setStrategyKey} />
           </View>
         </View>
 
-        <TouchableOpacity
-          style={[styles.runButton, isLoading && styles.runButtonDisabled]}
-          onPress={handleRun}
-          disabled={isLoading}
-        >
-          {isLoading ? (
-            <View style={styles.loadingRow}>
-              <ActivityIndicator color="#FFFFFF" size="small" />
-              <Text style={styles.runButtonText}>{state.message}</Text>
-            </View>
-          ) : (
-            <Text style={styles.runButtonText}>백테스트 실행</Text>
-          )}
-        </TouchableOpacity>
-
-        {state.status === 'error' && (
-          <View style={styles.errorBox}>
-            <Text style={styles.errorText}>{state.error}</Text>
+        {/* Prefetch progress */}
+        {(prefetchState.status === 'loading' || prefetchState.status === 'done') && (
+          <View style={styles.progressSection}>
+            <ProgressBar
+              progress={
+                prefetchState.status === 'loading' || prefetchState.status === 'done'
+                  ? prefetchState.progress
+                  : {loaded: 0, estimated: 0, percent: 0, message: '', fromCache: false}
+              }
+            />
           </View>
         )}
 
-        {state.status === 'success' && (
+        {/* Buttons */}
+        <View style={styles.buttonRow}>
+          <TouchableOpacity
+            style={[styles.prefetchButton, isBusy && styles.buttonDisabled]}
+            onPress={handlePrefetch}
+            disabled={isBusy}>
+            {isPrefetching ? (
+              <ActivityIndicator color={colors.accent} size="small" />
+            ) : (
+              <Text style={styles.prefetchButtonText}>
+                {dataReady ? '데이터 새로고침' : '데이터 불러오기'}
+              </Text>
+            )}
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={[styles.runButton, isBusy && styles.buttonDisabled]}
+            onPress={handleRun}
+            disabled={isBusy}>
+            {isRunning ? (
+              <View style={styles.loadingRow}>
+                <ActivityIndicator color="#FFFFFF" size="small" />
+                <Text style={styles.runButtonText}>{backtestState.message}</Text>
+              </View>
+            ) : (
+              <Text style={styles.runButtonText}>백테스트 실행</Text>
+            )}
+          </TouchableOpacity>
+        </View>
+
+        {/* Backtest progress */}
+        {backtestState.status === 'loading' && (
+          <View style={styles.progressSection}>
+            <Text style={styles.loadingMessage}>{backtestState.message}</Text>
+          </View>
+        )}
+
+        {prefetchState.status === 'error' && (
+          <View style={styles.errorBox}>
+            <Text style={styles.errorText}>{prefetchState.error}</Text>
+          </View>
+        )}
+
+        {backtestState.status === 'error' && (
+          <View style={styles.errorBox}>
+            <Text style={styles.errorText}>{backtestState.error}</Text>
+          </View>
+        )}
+
+        {backtestState.status === 'success' && (
           <>
             <View style={styles.resultSection}>
-              <ResultSummary result={state.result} />
+              <ResultSummary result={backtestState.result} />
             </View>
-            <TradeList trades={state.result.trades} />
+            <TradeList trades={backtestState.result.trades} />
           </>
         )}
       </ScrollView>
@@ -250,31 +288,42 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: colors.border,
   },
-  inputDisabled: {
-    backgroundColor: colors.surface,
-    borderRadius: borderRadius.input,
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.sm + 2,
-    borderWidth: 1,
-    borderColor: colors.border,
+  progressSection: {
+    marginBottom: spacing.lg,
   },
-  inputText: {
-    fontSize: 16,
-    color: colors.textSecondary,
+  buttonRow: {
+    flexDirection: 'row',
+    gap: spacing.sm,
+    marginBottom: spacing.xl,
+  },
+  prefetchButton: {
+    flex: 1,
+    backgroundColor: colors.surface,
+    borderRadius: borderRadius.button,
+    height: 48,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: colors.accent,
+  },
+  prefetchButtonText: {
+    fontSize: 14,
+    fontWeight: 'bold',
+    color: colors.accent,
   },
   runButton: {
+    flex: 1,
     backgroundColor: colors.accent,
     borderRadius: borderRadius.button,
     height: 48,
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: spacing.xl,
   },
-  runButtonDisabled: {
+  buttonDisabled: {
     opacity: 0.5,
   },
   runButtonText: {
-    fontSize: 16,
+    fontSize: 14,
     fontWeight: 'bold',
     color: '#FFFFFF',
   },
@@ -282,6 +331,11 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: spacing.sm,
+  },
+  loadingMessage: {
+    fontSize: 13,
+    color: colors.textSecondary,
+    textAlign: 'center',
   },
   errorBox: {
     backgroundColor: 'rgba(248, 81, 73, 0.1)',
