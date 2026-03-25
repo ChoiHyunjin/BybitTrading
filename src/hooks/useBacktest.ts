@@ -1,7 +1,7 @@
 import {useState, useCallback} from 'react';
 import {BacktestResult} from '../models/BacktestResult';
 import {BacktestEngine} from '../engine/BacktestEngine';
-import {BybitApi} from '../api/BybitApi';
+import {KlineRepository} from '../data/KlineRepository';
 import {TradingStrategy} from '../strategies/TradingStrategy';
 
 export type BacktestState =
@@ -24,21 +24,24 @@ export function useBacktest() {
 
   const runBacktest = useCallback(async (params: BacktestParams) => {
     try {
-      setState({status: 'loading', message: '데이터를 불러오는 중...'});
-
-      const prices = await BybitApi.fetchAllKlines({
-        symbol: params.symbol,
-        interval: params.interval,
-        start: params.startTime,
-        end: params.endTime,
-      });
+      const prices = await KlineRepository.getKlines(
+        params.symbol,
+        params.interval,
+        params.startTime,
+        params.endTime,
+        message => setState({status: 'loading', message}),
+      );
 
       if (prices.length === 0) {
         setState({status: 'error', error: '해당 기간의 데이터가 없습니다.'});
         return;
       }
 
-      setState({status: 'loading', message: '전략을 실행하는 중...'});
+      const stats = KlineRepository.getCacheStats();
+      setState({
+        status: 'loading',
+        message: `전략 실행 중... (캐시: ${stats.totalCandles.toLocaleString()}개 캔들)`,
+      });
 
       const engine = new BacktestEngine();
       const result = engine.run(
