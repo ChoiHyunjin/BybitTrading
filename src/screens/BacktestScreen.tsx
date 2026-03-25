@@ -16,6 +16,9 @@ import { useBacktest } from '../hooks/useBacktest';
 import { BollingerStrategy } from '../strategies/BollingerStrategy';
 import { SmaCrossoverStrategy } from '../strategies/SmaCrossoverStrategy';
 import { RsiStrategy } from '../strategies/RsiStrategy';
+import { MacdVolumeStrategy } from '../strategies/MacdVolumeStrategy';
+import { AtrChannelStrategy } from '../strategies/AtrChannelStrategy';
+import { MultiFactorStrategy } from '../strategies/MultiFactorStrategy';
 import { TradingStrategy } from '../strategies/TradingStrategy';
 import { borderRadius, colors, spacing } from '../theme/tokens';
 
@@ -28,6 +31,9 @@ const SYMBOL_OPTIONS = [
 ];
 
 const STRATEGY_OPTIONS = [
+  { label: 'Multi-Factor', value: 'multi' },
+  { label: 'MACD + Volume', value: 'macd' },
+  { label: 'ATR Channel', value: 'atr' },
   { label: 'SMA Crossover', value: 'sma' },
   { label: 'RSI (30/70)', value: 'rsi' },
   { label: 'Bollinger Band', value: 'bollinger' },
@@ -35,6 +41,12 @@ const STRATEGY_OPTIONS = [
 
 function createStrategy(key: string): TradingStrategy {
   switch (key) {
+    case 'multi':
+      return new MultiFactorStrategy();
+    case 'macd':
+      return new MacdVolumeStrategy();
+    case 'atr':
+      return new AtrChannelStrategy();
     case 'sma':
       return new SmaCrossoverStrategy();
     case 'rsi':
@@ -42,7 +54,7 @@ function createStrategy(key: string): TradingStrategy {
     case 'bollinger':
       return new BollingerStrategy();
     default:
-      return new SmaCrossoverStrategy();
+      return new MultiFactorStrategy();
   }
 }
 
@@ -63,7 +75,7 @@ export function BacktestScreen() {
   const [startDate, setStartDate] = useState('2024-01-01');
   const [endDate, setEndDate] = useState('2024-12-31');
   const [initialMoney, setInitialMoney] = useState('10000');
-  const [strategyKey, setStrategyKey] = useState('sma');
+  const [strategyKey, setStrategyKey] = useState('multi');
 
   const { state, runBacktest } = useBacktest();
 
